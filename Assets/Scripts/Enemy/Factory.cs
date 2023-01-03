@@ -23,12 +23,12 @@ public class Factory : MonoBehaviour
         _spawnDelayWFS = new WaitForSeconds(_spawnDelay);
     }
 
-    public void Spawn (Wave waves)
+    public void Spawn (Wave waves, int waveCount)
     {
-        _spawnCoroutine = StartCoroutine(DelayedSpawn(waves));
+        _spawnCoroutine = StartCoroutine(DelayedSpawn(waves, waveCount));
     }
 
-    private IEnumerator DelayedSpawn(Wave waves)
+    private IEnumerator DelayedSpawn(Wave waves, int waveCount)
     {
         foreach (EnemiesPack pack in waves.EnemiesPack)
         {
@@ -37,7 +37,7 @@ public class Factory : MonoBehaviour
                 GameObject enemyPrefab = _enemiesSet.GetEnemy(pack.Name);
                 GameObject enemyGO = Instantiate(enemyPrefab, pack.SpawnPoint.position, Quaternion.identity, _enemiesParent);
                 Enemy enemy = enemyGO.GetComponent<Enemy>();
-                enemy.Init(_target.position);
+                enemy.Init(_target.position, waveCount);
                 yield return _spawnDelayWFS;
             }
         }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,7 +22,7 @@ public class WaveControl : MonoBehaviour
     private void StartWave()
     {
         if (_currentWave < _waves.Length)
-            _factory.Spawn(_waves[_currentWave]);
+            _factory.Spawn(_waves[_currentWave], _currentWave);
 
         _currentWave++;
     }

@@ -9,6 +9,7 @@ public class Building : MonoBehaviour
     [SerializeField] private TowerButton _buttonPrefab;
     [SerializeField] private Transform _towerPanel;
     [SerializeField] private ErrorMessage _errorMessage;
+    [SerializeField] private Bank _bank;
 
     private Button[] _buttons;
     private Coroutine _buildMovement;
@@ -47,11 +48,15 @@ public class Building : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace))
+                if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace) &&
+                    towerPlace.IsFree == true)
                 {
                     _buildingTower.transform.position = hit.transform.position;
                     _buildingTower.transform.rotation = hit.transform.rotation;
-                    //construct start attack
+                    towerPlace.Reserve();
+                    EndShowPlaces();
+                    _bank.Buy(_buildingTower.Price);
+                    _buildingTower.BuildFinish();
                     _buildingTower = null;
                 }
                 else
@@ -68,12 +73,20 @@ public class Building : MonoBehaviour
         {
             Destroy(_buildingTower.gameObject);
         }
+        EndShowPlaces();
     }
 
     private void StartBuilding (int towerIndex)
     {
-        ShowPlaces();
-        _buildMovement = StartCoroutine(BuildMovement(_towers[towerIndex]));
+        if (_bank.Money >= _towers[towerIndex].Price)
+        {
+            ShowPlaces();
+            _buildMovement = StartCoroutine(BuildMovement(_towers[towerIndex]));
+        }
+        else
+        {
+            _errorMessage.ShowMessage("Недостаточно денег");
+        }
     }
 
     private void ShowPlaces()
@@ -101,7 +114,8 @@ public class Building : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray,out RaycastHit hit))
             {
-                if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace))
+                if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace) &&
+                    towerPlace.IsFree == true)
                 {
                     _buildingTower.transform.position = hit.transform.position;
                     _buildingTower.transform.rotation = hit.transform.rotation;

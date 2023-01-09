@@ -7,7 +7,7 @@ public class TowerPlace : MonoBehaviour
     [SerializeField] private Material _greenMaterial;
 
     private MeshRenderer _renderer;
-    private bool _isFree = true;
+    public bool IsFree {get; private set;} = true;
 
     private void Start()
     {
@@ -17,7 +17,7 @@ public class TowerPlace : MonoBehaviour
 
     public void ShowPlace()
     {
-        if (_isFree == true)
+        if (IsFree == true)
         {
             _renderer.material = _greenMaterial;
         }
@@ -30,11 +30,11 @@ public class TowerPlace : MonoBehaviour
 
     public void Reserve()
     {
-        _isFree = false;
+        IsFree = false;
     }
 
     public void Release()
     {
-        _isFree = true;
+        IsFree = true;
     }
 }

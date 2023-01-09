@@ -6,6 +6,10 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent), typeof(Health))]
 public abstract class Enemy : MonoBehaviour, IDamageble
 {
+    [SerializeField] private Transform _shootTarget;
+
+    public Transform ShootTarget => _shootTarget;
+
     private NavMeshAgent _agent;
     protected Health _health;
 

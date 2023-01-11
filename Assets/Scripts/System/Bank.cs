@@ -11,6 +11,16 @@ public class Bank : MonoBehaviour
 
     public int Money { get; private set; }
 
+    private void OnEnable()
+    {
+        Events.OnEnemyDeadEvent += AddReward;
+    }
+
+    private void OnDisable()
+    {
+        Events.OnEnemyDeadEvent -= AddReward;
+    }
+
     private void Start()
     {
         Money = _startMoney;
@@ -21,24 +31,38 @@ public class Bank : MonoBehaviour
     {
         if (money <= Money)
         {
-            UpdateMoneyAsync(_moneyText, Money, Money - money);
+            UpdateMoneyAsync( Money, Money - money);
             Money -= money;
-        }
-        else
-        {
-            Debug.Log("Недостаточно денег");
         }
     }
 
-    private async void UpdateMoneyAsync(TMP_Text text,int currentValue, int newValue)
+    private void AddReward(Enemy enemy)
     {
-        while(currentValue > newValue)
+        UpdateMoneyAsync(Money, Money + enemy.Reward);
+        Money += enemy.Reward;
+    }
+
+    private async void UpdateMoneyAsync(int currentValue, int newValue)
+    {
+        if (newValue < currentValue)
         {
-            currentValue -= 5;
-            text.text = currentValue.ToString();
-            await Task.Yield();
+            while (currentValue > newValue)
+            {
+                currentValue -= 5;
+                _moneyText.text = currentValue.ToString();
+                await Task.Yield();
+            }
+        }
+        else
+        {
+            while (currentValue < newValue)
+            {
+                currentValue += 2;
+                _moneyText.text = currentValue.ToString();
+                await Task.Yield();
+            }
         }
 
-        text.text = newValue.ToString();
+        _moneyText.text = newValue.ToString();
     }
 }

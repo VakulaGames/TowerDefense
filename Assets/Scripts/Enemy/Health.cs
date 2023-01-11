@@ -14,6 +14,9 @@ public class Health : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-
+        if (damage < _baseHealth)
+            _baseHealth -= damage;
+        else
+            _damageble.Dead();
     }
 }

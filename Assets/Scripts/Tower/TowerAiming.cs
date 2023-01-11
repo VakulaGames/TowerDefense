@@ -4,35 +4,36 @@ using UnityEngine;
 
 public class TowerAiming : MonoBehaviour
 {
-    [SerializeField] private float _speed;
+    [SerializeField] private float _speedRotation;
     [SerializeField] private Transform _towerBody;
 
     public Transform Target { get; private set; }
 
     private List<Enemy> _enemies;
     private Sequence _sequence;
-    private bool _aimingEnable;
 
     private void OnEnable()
     {
         _enemies = new List<Enemy>();
+        Events.OnEnemyDeadEvent += CheckDeadEnemy;
     }
 
     private void OnDisable()
     {
         if (_sequence != null)
             _sequence.Kill();
+        Events.OnEnemyDeadEvent -= CheckDeadEnemy;
     }
 
-    private void Update()
+    public void Aim()
     {
-        if (_aimingEnable == true && Target != null)
+        if (Target != null)
         {
-            Vector3 direction1 = Target.position - _towerBody.position;
-            float signedAngle1 = Vector3.SignedAngle(GetWithoutY(_towerBody.forward), GetWithoutY(direction1), Vector3.up);
-            Vector3 euler1 = _towerBody.eulerAngles;
-            euler1.y = Mathf.LerpAngle(euler1.y, euler1.y + signedAngle1, _speed * Time.deltaTime);
-            _towerBody.eulerAngles = euler1;
+            Vector3 direction = Target.position - _towerBody.position;
+            float signedAngle = Vector3.SignedAngle(GetWithoutY(_towerBody.forward), GetWithoutY(direction), Vector3.up);
+            Vector3 euler = _towerBody.eulerAngles;
+            euler.y = Mathf.LerpAngle(euler.y, euler.y + signedAngle, _speedRotation * Time.deltaTime);
+            _towerBody.eulerAngles = euler;
         }
     }
 
@@ -50,7 +51,7 @@ public class TowerAiming : MonoBehaviour
             _enemies.Add(enemy);
 
             if (Target == null)
-                Target = _enemies[0].transform;
+                Target = _enemies[0].ShootTarget;
         }
     }
 
@@ -63,11 +64,11 @@ public class TowerAiming : MonoBehaviour
                 _enemies.Remove(enemy);
             }
 
-            if (Target != null && Target == enemy.transform)
+            if (Target != null && Target == enemy.ShootTarget)
             {
                 if (_enemies.Count > 0)
                 {
-                    Target = _enemies[0].transform;
+                    Target = _enemies[0].ShootTarget;
                 }
                 else
                 {
@@ -77,13 +78,28 @@ public class TowerAiming : MonoBehaviour
         }
     }
 
-    public void StartAiming()
-    {
-        _aimingEnable = true;
-    }
-
     public void SetRadiusAttack(float radius)
     {
         transform.localScale = new Vector3(radius * 2, 1, radius * 2);
+    }
+
+    private void CheckDeadEnemy(Enemy enemy)
+    {
+        if (_enemies.Contains(enemy))
+        {
+            _enemies.Remove(enemy);
+
+            if (Target == enemy.ShootTarget)
+            {
+                if (_enemies.Count > 0)
+                {
+                    Target = _enemies[0].ShootTarget;
+                }
+                else
+                {
+                    Target = null;
+                }
+            }
+        }
     }
 }

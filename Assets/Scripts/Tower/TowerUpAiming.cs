@@ -8,7 +8,7 @@ public class TowerUpAiming : MonoBehaviour
     [SerializeField] private Transform _body;
     [SerializeField] private float _speed;
 
-    private void Update()
+    public void Aim()
     {
         if (_aiming.Target != null)
         {

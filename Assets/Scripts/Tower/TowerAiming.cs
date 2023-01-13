@@ -6,6 +6,7 @@ public class TowerAiming : MonoBehaviour
 {
     [SerializeField] private float _speedRotation;
     [SerializeField] private Transform _towerBody;
+    [SerializeField] private TowerUpAiming _towerUpAiming;
 
     public Transform Target { get; private set; }
 
@@ -34,6 +35,8 @@ public class TowerAiming : MonoBehaviour
             Vector3 euler = _towerBody.eulerAngles;
             euler.y = Mathf.LerpAngle(euler.y, euler.y + signedAngle, _speedRotation * Time.deltaTime);
             _towerBody.eulerAngles = euler;
+
+            if (_towerUpAiming != null) _towerUpAiming.Aim();
         }
     }
 

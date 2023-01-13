@@ -11,9 +11,9 @@ public class Tower : MonoBehaviour
     [SerializeField] private float _damage;
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private TowerAiming _towerAiming;
-    [SerializeField] private TowerUpAiming _towerUpAiming;
     [SerializeField] private DrawRadius _drawRadius;
     [SerializeField] private Transform _bulletSpawnPoint;
+    [SerializeField] private ParticleSystem _flash;
 
     public Sprite Sprite => _sprite;
     public int Price => _price;
@@ -43,21 +43,15 @@ public class Tower : MonoBehaviour
         {
             _towerAiming.Aim();
 
-            if (_towerUpAiming != null) _towerUpAiming.Aim();
-
             attackCounter -= Time.deltaTime;
             if (attackCounter <= 0 && _towerAiming.Target != null)
             {
-                Ray ray = new Ray(_bulletSpawnPoint.position,
-                    _towerAiming.Target.position - _bulletSpawnPoint.position);
-                if (Physics.Raycast(ray,out RaycastHit hit))
+                if (Vector3.Angle(_bulletSpawnPoint.forward,
+                    _towerAiming.Target.position - _bulletSpawnPoint.position) < 30)
                 {
-                    if (hit.transform.GetComponent<Enemy>())
-                    {
-                        Shoot();
+                    Shoot();
 
-                        attackCounter = _intervalAttack;
-                    }
+                    attackCounter = _intervalAttack;
                 }
             }
 
@@ -100,6 +94,7 @@ public class Tower : MonoBehaviour
         bullet.transform.rotation = _bulletSpawnPoint.rotation;
         bullet.gameObject.SetActive(true);
         bullet.Shoot(_towerAiming.Target.position, _damage);
+        _flash.Play();
         _bulletPool.Enqueue(bullet);
     }
 }

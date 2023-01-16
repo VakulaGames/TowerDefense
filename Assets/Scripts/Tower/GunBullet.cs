@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody), typeof(Collider))]
 public class GunBullet : Bullet
 {
+    [SerializeField] private float _force;
+
     private Rigidbody _rb;
 
     private void Awake()
@@ -23,10 +25,10 @@ public class GunBullet : Bullet
         if (collision.transform.TryGetComponent<Enemy>(out Enemy enemy))
         {
             enemy.Attack(_damage);
-        }
-        else
-        {
-            Debug.Log($"{collision.transform.name} не враг");
+            if (collision.transform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
+            {
+                rigidbody.AddForce(transform.forward * _force, ForceMode.Impulse);
+            }
         }
 
         _rb.velocity = Vector3.zero;

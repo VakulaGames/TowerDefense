@@ -14,6 +14,7 @@ public class Tower : MonoBehaviour
     [SerializeField] private DrawRadius _drawRadius;
     [SerializeField] private Transform _bulletSpawnPoint;
     [SerializeField] private ParticleSystem _flash;
+    [SerializeField] private AudioSource _audioSource;
 
     public Sprite Sprite => _sprite;
     public int Price => _price;
@@ -94,6 +95,7 @@ public class Tower : MonoBehaviour
         bullet.transform.rotation = _bulletSpawnPoint.rotation;
         bullet.gameObject.SetActive(true);
         bullet.Shoot(_towerAiming.Target.position, _damage);
+        _audioSource.Play();
         _flash.Play();
         _bulletPool.Enqueue(bullet);
     }

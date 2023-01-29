@@ -4,24 +4,26 @@ using UnityEngine;
 
 public class Tower : MonoBehaviour
 {
+    [SerializeField] protected float _damage;
+    [SerializeField] protected TowerAiming _towerAiming;
+    [SerializeField] protected Transform _bulletSpawnPoint;
+
     [SerializeField] private Sprite _sprite;
     [SerializeField] private int _price;
     [SerializeField] private float _radiusAttack;
     [SerializeField] private float _intervalAttack;
-    [SerializeField] private float _damage;
-    [SerializeField] private Bullet _bulletPrefab;
-    [SerializeField] private TowerAiming _towerAiming;
     [SerializeField] private DrawRadius _drawRadius;
-    [SerializeField] private Transform _bulletSpawnPoint;
     [SerializeField] private ParticleSystem _flash;
     [SerializeField] private AudioSource _audioSource;
 
     public Sprite Sprite => _sprite;
     public int Price => _price;
     public float RadiusAttack => _radiusAttack;
+    public int Level { get; private set; }
+    public virtual int UpgradePrice { get { return Price * (Level + 1); } }
+    public virtual int SellPrice { get { return ((Price * Level) / 10) * 9; } }
 
     private Coroutine _aimAndAttack;
-    private Queue<Bullet> _bulletPool;
 
     private void OnDisable()
     {
@@ -30,10 +32,9 @@ public class Tower : MonoBehaviour
 
     private void Start()
     {
+        Level = 1;
         _towerAiming.SetRadiusAttack(RadiusAttack);
         ShowRadius(true);
-
-        _bulletPool = FillBulletPool(_bulletPrefab, 5);
     }
 
     private IEnumerator AimAndAttack()
@@ -45,10 +46,9 @@ public class Tower : MonoBehaviour
             _towerAiming.Aim();
 
             attackCounter -= Time.deltaTime;
-            if (attackCounter <= 0 && _towerAiming.Target != null)
+            if (attackCounter <= 0 && _towerAiming.EnemyTarget != null)
             {
-                if (Vector3.Angle(_bulletSpawnPoint.forward,
-                    _towerAiming.Target.position - _bulletSpawnPoint.position) < 30)
+                if (IsAimed(_towerAiming.EnemyTarget.ShootTarget.position))
                 {
                     Shoot();
 
@@ -74,29 +74,22 @@ public class Tower : MonoBehaviour
             _drawRadius.EndShow();
     }
 
-    private Queue<Bullet> FillBulletPool (Bullet bulletPrefab, int count)
+    protected virtual bool IsAimed (Vector3 targetPosition)
     {
-        Queue<Bullet> bullets = new Queue<Bullet>();
-
-        for (int i = 0; i < count; i++)
+        if (Vector3.Angle(_bulletSpawnPoint.forward,
+                   targetPosition - _bulletSpawnPoint.position) < 30)
         {
-            Bullet bullet = Instantiate(bulletPrefab);
-            bullet.gameObject.SetActive(false);
-            bullets.Enqueue(bullet);
+            return true;
         }
-
-        return bullets;
+        else
+        {
+            return false;
+        }
     }
 
-    private void Shoot()
+    protected virtual void Shoot()
     {
-        Bullet bullet = _bulletPool.Dequeue();
-        bullet.transform.position = _bulletSpawnPoint.position;
-        bullet.transform.rotation = _bulletSpawnPoint.rotation;
-        bullet.gameObject.SetActive(true);
-        bullet.Shoot(_towerAiming.Target.position, _damage);
         _audioSource.Play();
         _flash.Play();
-        _bulletPool.Enqueue(bullet);
     }
 }

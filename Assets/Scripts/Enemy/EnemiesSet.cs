@@ -4,8 +4,10 @@ using UnityEngine;
 
 public enum EnemyName
 {
-    Rat = 0,
-    Monster = 1
+    SmallRat = 0,
+    SmallRatInHelmet = 1,
+    BigRat = 2,
+    BigRatInHelmet = 3,
 }
 
 [CreateAssetMenu(menuName = "EnemiesSet")]

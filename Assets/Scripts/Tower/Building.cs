@@ -10,6 +10,9 @@ public class Building : MonoBehaviour
     [SerializeField] private Transform _towerPanel;
     [SerializeField] private ErrorMessage _errorMessage;
     [SerializeField] private Bank _bank;
+    [SerializeField] private LayerMask _layerMask;
+
+    public bool IsBuildingMod { get; private set; }
 
     private Button[] _buttons;
     private Coroutine _buildMovement;
@@ -46,7 +49,7 @@ public class Building : MonoBehaviour
         if (_buildingTower != null)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Physics.Raycast(ray, out RaycastHit hit, 100, _layerMask))
             {
                 if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace) &&
                     towerPlace.IsFree == true)
@@ -58,6 +61,7 @@ public class Building : MonoBehaviour
                     _bank.Buy(_buildingTower.Price);
                     _buildingTower.BuildFinish();
                     _buildingTower = null;
+                    IsBuildingMod = false;
                 }
                 else
                 {
@@ -80,6 +84,7 @@ public class Building : MonoBehaviour
     {
         if (_bank.Money >= _towers[towerIndex].Price)
         {
+            IsBuildingMod = true;
             ShowPlaces();
             _buildMovement = StartCoroutine(BuildMovement(_towers[towerIndex]));
         }
@@ -112,8 +117,10 @@ public class Building : MonoBehaviour
         while (_buildingTower != null)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray,out RaycastHit hit))
+            if (Physics.Raycast(ray,out RaycastHit hit,100,_layerMask))
             {
+                Debug.Log(hit.transform.name + hit.transform.gameObject.layer);
+
                 if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace) &&
                     towerPlace.IsFree == true)
                 {

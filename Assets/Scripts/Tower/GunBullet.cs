@@ -24,7 +24,7 @@ public class GunBullet : Bullet
     {
         if (collision.transform.TryGetComponent<Enemy>(out Enemy enemy))
         {
-            enemy.Attack(_damage);
+            //enemy.Attack(_damage);
             if (collision.transform.TryGetComponent<Rigidbody>(out Rigidbody rigidbody))
             {
                 rigidbody.AddForce(transform.forward * _force, ForceMode.Impulse);

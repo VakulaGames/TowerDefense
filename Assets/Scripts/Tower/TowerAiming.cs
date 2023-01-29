@@ -8,7 +8,7 @@ public class TowerAiming : MonoBehaviour
     [SerializeField] private Transform _towerBody;
     [SerializeField] private TowerUpAiming _towerUpAiming;
 
-    public Transform Target { get; private set; }
+    public Enemy EnemyTarget { get; private set; }
 
     private List<Enemy> _enemies;
     private Sequence _sequence;
@@ -28,9 +28,9 @@ public class TowerAiming : MonoBehaviour
 
     public void Aim()
     {
-        if (Target != null)
+        if (EnemyTarget != null)
         {
-            Vector3 direction = Target.position - _towerBody.position;
+            Vector3 direction = EnemyTarget.ShootTarget.position - _towerBody.position;
             float signedAngle = Vector3.SignedAngle(GetWithoutY(_towerBody.forward), GetWithoutY(direction), Vector3.up);
             Vector3 euler = _towerBody.eulerAngles;
             euler.y = Mathf.LerpAngle(euler.y, euler.y + signedAngle, _speedRotation * Time.deltaTime);
@@ -53,8 +53,8 @@ public class TowerAiming : MonoBehaviour
         {
             _enemies.Add(enemy);
 
-            if (Target == null)
-                Target = _enemies[0].ShootTarget;
+            if (EnemyTarget == null)
+                EnemyTarget = _enemies[0];
         }
     }
 
@@ -67,15 +67,15 @@ public class TowerAiming : MonoBehaviour
                 _enemies.Remove(enemy);
             }
 
-            if (Target != null && Target == enemy.ShootTarget)
+            if (EnemyTarget != null && EnemyTarget == enemy)
             {
                 if (_enemies.Count > 0)
                 {
-                    Target = _enemies[0].ShootTarget;
+                    EnemyTarget = _enemies[0];
                 }
                 else
                 {
-                    Target = null;
+                    EnemyTarget = null;
                 }
             }
         }
@@ -92,15 +92,15 @@ public class TowerAiming : MonoBehaviour
         {
             _enemies.Remove(enemy);
 
-            if (Target == enemy.ShootTarget)
+            if (EnemyTarget == enemy)
             {
                 if (_enemies.Count > 0)
                 {
-                    Target = _enemies[0].ShootTarget;
+                    EnemyTarget = _enemies[0];
                 }
                 else
                 {
-                    Target = null;
+                    EnemyTarget = null;
                 }
             }
         }

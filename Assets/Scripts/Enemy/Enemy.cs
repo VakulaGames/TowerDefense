@@ -3,15 +3,17 @@ using UnityEngine.AI;
 using DG.Tweening;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(Health))]
-public abstract class Enemy : MonoBehaviour, IDamageble
+public abstract class Enemy : MonoBehaviour
 {
+    [SerializeField] protected EnemySound _enemySound;
+    [SerializeField] protected Rigidbody _rigidbody;
+
     [SerializeField] private int _reward;
     [SerializeField] private Transform _shootTarget;
     [SerializeField] private Animator _animator;
     [SerializeField] private Collider _collider;
-    [SerializeField] private Rigidbody _rigidbody;
     [SerializeField] private Renderer _renderer;
-    
+
     public int Reward => _reward;
     public Transform ShootTarget => _shootTarget;
 
@@ -36,7 +38,7 @@ public abstract class Enemy : MonoBehaviour, IDamageble
         _agent.SetDestination(target);
     }
 
-    public virtual void Attack(float damage)
+    public virtual void Attack(float damage, Vector3 direction)
     {
         _health.TakeDamage(damage);
     }
@@ -53,6 +55,7 @@ public abstract class Enemy : MonoBehaviour, IDamageble
         _animator.SetTrigger("Dead");
         _collider.enabled = false;
         _rigidbody.isKinematic = true;
+        _enemySound.PlayDeath();
 
         Events.OnEnemyDeadEvent.Invoke(this);
 

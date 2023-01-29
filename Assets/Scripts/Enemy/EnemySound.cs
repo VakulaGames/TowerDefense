@@ -19,10 +19,15 @@ public class EnemySound : MonoBehaviour
         _source.clip = _clips[0];
         _source.Play();
     }
+    public void PlayHelmetShot()
+    {
+        _source.clip = _clips[1];
+        _source.Play();
+    }
 
     public void PlayDeath()
     {
-        _source.clip = _clips[1];
+        _source.clip = _clips[2];
         _source.Play();
     }
 }

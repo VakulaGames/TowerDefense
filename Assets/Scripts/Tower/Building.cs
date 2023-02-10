@@ -9,7 +9,7 @@ public class Building : MonoBehaviour
     [SerializeField] private TowerButton _buttonPrefab;
     [SerializeField] private Transform _towerPanel;
     [SerializeField] private ErrorMessage _errorMessage;
-    [SerializeField] private Bank _bank;
+    [SerializeField] private SceneBank _bank;
     [SerializeField] private LayerMask _layerMask;
 
     public bool IsBuildingMod { get; private set; }
@@ -20,17 +20,7 @@ public class Building : MonoBehaviour
 
     private void OnEnable()
     {
-        _buttons = new Button[_towers.Length];
-
-        for (int i = 0; i < _buttons.Length; i++)
-        {
-            TowerButton towerButton = Instantiate(_buttonPrefab, _towerPanel);
-            towerButton.Construct(_towers[i]);
-            _buttons[i] = towerButton.GetComponent<Button>();
-
-            int index = i;
-            _buttons[i].onClick.AddListener(() => { StartBuilding(index) ; });
-        }
+        CreateButtons();
     }
 
     private void OnDisable()
@@ -42,6 +32,21 @@ public class Building : MonoBehaviour
 
         if (_buildMovement != null)
             StopCoroutine(_buildMovement);
+    }
+
+    private void CreateButtons()
+    {
+        _buttons = new Button[_towers.Length];
+
+        for (int i = 0; i < _buttons.Length; i++)
+        {
+            TowerButton towerButton = Instantiate(_buttonPrefab, _towerPanel);
+            towerButton.Construct(_towers[i]);
+            _buttons[i] = towerButton.GetComponent<Button>();
+
+            int index = i;
+            _buttons[i].onClick.AddListener(() => { StartBuilding(index); });
+        }
     }
 
     public void EnterBuild()
@@ -119,8 +124,6 @@ public class Building : MonoBehaviour
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray,out RaycastHit hit,100,_layerMask))
             {
-                Debug.Log(hit.transform.name + hit.transform.gameObject.layer);
-
                 if (hit.transform.TryGetComponent<TowerPlace>(out TowerPlace towerPlace) &&
                     towerPlace.IsFree == true)
                 {
